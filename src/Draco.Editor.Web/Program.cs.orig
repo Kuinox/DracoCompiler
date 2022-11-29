@@ -5,13 +5,17 @@ using ICSharpCode.Decompiler;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
 using Draco.Compiler.Api;
+<<<<<<< origin/main
 using Draco.Compiler.Api.Syntax;
+=======
 using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
 using System;
 using System.Threading;
 using System.IO;
+using Draco.Edtior.Web;
 using System.Text.Json;
+>>>>>>> local
 
 namespace Draco.Editor.Web;
 
@@ -23,9 +27,14 @@ public partial class Program
     public static async Task Main(string[] args)
     {
         Interop.Messages += OnMessage;
-        Console.WriteLine("Hello World");
-        Type a;
+        var builder = WebAssemblyHostBuilder.CreateDefault(args);
+        var host = builder.Build();
+
+        // This will complete when the synchronous part of app.ts finish.
+        await ProcessUserInput();
+        await host.RunAsync();
     }
+
 
 
     public static async void OnMessage(object? sender, (string type, string payload) message)
@@ -33,31 +42,26 @@ public partial class Program
         switch (message.type)
         {
         case "OnInit":
-            var onInit = (OnInit)JsonSerializer.Deserialize(message.payload, typeof(OnInit), SourceGenerationContext.Default)!;
+            var onInit = (OnInit)JsonSerializer.Deserialize(message.payload, typeof(OnInit), SourceGenerationContext.Default);
             selectedOutputType = onInit.OutputType;
             code = onInit.Code;
-            await ProcessUserInput();
             return;
         case "OnOutputTypeChange":
             selectedOutputType = message.payload;
             await ProcessUserInput();
             return;
-        case "CodeChange":
-            code = message.payload;
-            await ProcessUserInput();
-            return;
         default:
             throw new NotSupportedException();
         }
-
     }
 
-
+    
 
     /// <summary>
     /// Called when the user changed output type.
     /// </summary>
     /// <param name="value">The new output type.</param>
+    [JSExport]
     public static async Task OnOutputTypeChange(string value)
     {
         selectedOutputType = value;
