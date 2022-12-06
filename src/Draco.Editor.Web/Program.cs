@@ -23,8 +23,6 @@ public partial class Program
     public static async Task Main(string[] args)
     {
         Interop.Messages += OnMessage;
-        Console.WriteLine("Hello World");
-        Type a;
     }
 
 
@@ -173,7 +171,11 @@ public partial class Program
     /// </summary>
     /// <param name="text"></param>
     /// <returns></returns>
-    private static async Task SetOutputText(string text) => Interop.SendMessage("setOutputText", text);
+    private static async Task SetOutputText(string text)
+    {
+        Console.WriteLine("setOutputText '"+text+"'");
+        Interop.SendMessage("setOutputText", text);
+    }
 
     /// <summary>
     /// Polling loop that take the script output and display it to the output editor.

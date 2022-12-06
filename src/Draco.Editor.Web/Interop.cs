@@ -5,7 +5,7 @@ namespace Draco.Editor.Web;
 
 public static partial class Interop
 {
-    [JSImport("sendMessage")]
+    [JSImport("Interop.sendMessage", "worker.js")]
     public static partial void SendMessage(string type, string message);
 
     [JSExport]
