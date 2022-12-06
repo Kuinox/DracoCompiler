@@ -19,7 +19,6 @@ let initPromise = new Promise(
 let csOnMessage;
 
 onmessage = async (e: MessageEvent<unknown>) => {
-    console.log('msg');
     if (firstMessageResolve != undefined) {
         firstMessageResolve(e.data);
         firstMessageResolve = undefined;
@@ -57,6 +56,7 @@ async function main() {
     firstMessagePromise = undefined;
     const dotnet = self.dotnet.dotnet;
     dotnet.moduleConfig.configSrc = null;
+<<<<<<< HEAD
     const dlls = [
         {
             'behavior': 'dotnetwasm',
@@ -102,10 +102,13 @@ async function main() {
         mainAssemblyName + '.dll',
     ].forEach(s => addDll(s));
 
+=======
+>>>>>>> e74f841 (mhhh)
     const { setModuleImports, getAssemblyExports, } = await dotnet
         .withDiagnosticTracing(true)
         .withConfig(
             monoCfg
+<<<<<<< HEAD
             // {
             // mainAssemblyName: mainAssemblyName,
             // assemblyRootFolder: '_framework',
@@ -118,6 +121,19 @@ async function main() {
         sendMessage
     );
     const exports = await getAssemblyExports(mainAssemblyName);
+=======
+        )
+        .create();
+    setModuleImports(
+        'worker.js',
+        {
+            Interop: {
+                sendMessage
+            }
+        }
+    );
+    const exports = await getAssemblyExports(monoCfg['mainAssemblyName']);
+>>>>>>> e74f841 (mhhh)
     csOnMessage = exports.Draco.Editor.Web.Interop.OnMessage;
     initResolve();
     await dotnet.run();

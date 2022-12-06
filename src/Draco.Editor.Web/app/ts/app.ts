@@ -55,7 +55,7 @@ function updateHash() {
     const buffer = new Uint8Array(compressed.length + 1);
     buffer[0] = 1; // version, for future use.
     buffer.set(compressed, 1);
-    history.replaceState(undefined, undefined, '#'+fromBase64ToBase64URL(toBase64(buffer)) );
+    history.replaceState(undefined, undefined, '#' + fromBase64ToBase64URL(toBase64(buffer)));
 }
 
 // We export this method so the C# runtime can call them.
@@ -97,15 +97,15 @@ outputTypeSelector.onchange = () => {
     updateHash();
     const newVal = outputTypeSelector.value;
     switch (newVal) {
-    case 'CSharp':
-        monaco.editor.setModelLanguage(outputEditor.getModel(), 'csharp');
-        break;
-    case 'IL':
-        monaco.editor.setModelLanguage(outputEditor.getModel(), 'il');
-        break;
-    default:
-        monaco.editor.setModelLanguage(outputEditor.getModel(), 'none');
-        break;
+        case 'CSharp':
+            monaco.editor.setModelLanguage(outputEditor.getModel(), 'csharp');
+            break;
+        case 'IL':
+            monaco.editor.setModelLanguage(outputEditor.getModel(), 'il');
+            break;
+        default:
+            monaco.editor.setModelLanguage(outputEditor.getModel(), 'none');
+            break;
     }
     // We relay the output type change to C#.
     worker.postMessage({
@@ -135,14 +135,49 @@ const outputEditor = monaco.editor.create(document.getElementById('output-viewer
 });
 
 async function main() {
+<<<<<<< HEAD
     const cfg = await (await fetch('_framework/blazor.boot.json')).json();
     console.log(cfg);
     worker.postMessage(cfg);
+=======
+<<<<<<< main
+    Blazor.start().then( // Start blazor, nonblocking.
+        () => {
+            DotNet.invokeMethodAsync<void>(
+                'Draco.Editor.Web',
+                'OnInit',
+                outputTypeSelector.value, dracoEditor.getModel().createSnapshot().read()
+            );
+=======
+    const cfg = await (await fetch('_framework/blazor.boot.json')).json();
+    const dlls = Object.keys(cfg.resources.assembly).map(
+        s => {
+            return {
+                'behavior': 'assembly',
+                'name': s
+            };
+        }
+    );
+    dlls.push({
+        'behavior': 'dotnetwasm',
+        'name': 'dotnet.wasm'
+    });
+    const bootCfg = {
+        mainAssemblyName: cfg.entryAssembly,
+        assemblyRootFolder: '_framework',
+        assets: dlls,
+    };
+    worker.postMessage(bootCfg);
+>>>>>>> e74f841 (mhhh)
     worker.postMessage({
         type: 'OnInit',
         payload: {
             OutputType: outputTypeSelector.value,
             Code: dracoEditor.getModel().createSnapshot().read()
+<<<<<<< HEAD
+=======
+>>>>>>> local
+>>>>>>> e74f841 (mhhh)
         }
     });
     const wasmPromise = loadWASM(onigasmWasm.buffer); // https://www.npmjs.com/package/onigasm;
@@ -193,23 +228,23 @@ async function main() {
     const registry = new Registry({
         getGrammarDefinition: async (scopeName) => {
             switch (scopeName) {
-            case 'source.draco':
-                return {
-                    format: 'json',
-                    content: grammarDefinition
-                };
-            case 'source.cs':
-                return {
-                    format: 'json',
-                    content: await (await fetch('csharp.tmLanguage.json')).text()
-                };
-            case 'source.il':
-                return {
-                    format: 'json',
-                    content: await (await fetch('il.tmLanguage.json')).text()
-                };
-            default:
-                return null;
+                case 'source.draco':
+                    return {
+                        format: 'json',
+                        content: grammarDefinition
+                    };
+                case 'source.cs':
+                    return {
+                        format: 'json',
+                        content: await (await fetch('csharp.tmLanguage.json')).text()
+                    };
+                case 'source.il':
+                    return {
+                        format: 'json',
+                        content: await (await fetch('il.tmLanguage.json')).text()
+                    };
+                default:
+                    return null;
             }
 
         }
