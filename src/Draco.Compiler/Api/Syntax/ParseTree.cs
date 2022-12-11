@@ -1,17 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using Draco.Compiler.Api.Diagnostics;
-using Draco.Compiler.Internal.Utilities;
+using Draco.Compiler.Internal.Syntax;
 using Draco.RedGreenTree.Attributes;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Draco.Compiler.Api.Syntax;
 
@@ -95,6 +91,13 @@ public abstract partial class ParseTree : IEquatable<ParseTree>
     {
         public TokenType Type => this.Green.Type;
     }
+
+    /// <summary>
+    /// Formats the <see cref="ParseTree"/>.
+    /// </summary>
+    /// <returns>The formatted <see cref="ParseTree"/>.</returns>
+    public ParseTree Format() =>
+        ToRed(null, new ParseTreeFormatter(ParseTreeFormatterSettings.Default).Format(this.Green));
 }
 
 public abstract partial class ParseTree
@@ -122,7 +125,7 @@ public abstract partial class ParseTree
         var sb = new StringBuilder();
         // We simply print the text of all tokens except the first and last ones
         // For the first, we ignore leading trivia, for the last we ignore trailing trivia
-        var lastTrailingTrivia = ImmutableArray<Token>.Empty;
+        var lastTrailingTrivia = ImmutableArray<Trivia>.Empty;
         using var tokenEnumerator = this.Tokens.GetEnumerator();
         // The first token just gets it's content printed
         // That ignores the leading trivia, trailing will only be printed if there are following tokens
@@ -289,6 +292,9 @@ public abstract partial class ParseTree
     private static Token? ToRed(ParseTree? parent, Internal.Syntax.ParseTree.Token? token) =>
         token is null ? null : new(parent, token);
 
+    private static Trivia ToRed(ParseTree? parent, Internal.Syntax.ParseTree.Trivia trivia) =>
+        new(parent, trivia);
+
     private static IEnumerable<ParseTree> ToRed(ParseTree? parent, IEnumerable<Internal.Syntax.ParseTree> elements) =>
         elements.Select(e => ToRed(parent, e));
 
@@ -296,6 +302,9 @@ public abstract partial class ParseTree
         elements.Select(e => ToRed(parent, e)).ToImmutableArray();
 
     private static ImmutableArray<Token> ToRed(ParseTree? parent, ImmutableArray<Internal.Syntax.ParseTree.Token> elements) =>
+        elements.Select(e => ToRed(parent, e)).ToImmutableArray();
+
+    private static ImmutableArray<Trivia> ToRed(ParseTree? parent, ImmutableArray<Internal.Syntax.ParseTree.Trivia> elements) =>
         elements.Select(e => ToRed(parent, e)).ToImmutableArray();
 
     private static ImmutableArray<Decl> ToRed(ParseTree? parent, ImmutableArray<Internal.Syntax.ParseTree.Decl> elements) =>
